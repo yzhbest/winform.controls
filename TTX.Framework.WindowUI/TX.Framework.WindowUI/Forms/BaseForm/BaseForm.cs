@@ -405,6 +405,13 @@ namespace TX.Framework.WindowUI.Forms
                 case (int)WindowMessages.WM_NCHITTEST:
                     WmNcHitTest(ref m);
                     break;
+                // yzh input 2019-10-30 border display bug
+                case (int)WindowMessages.WM_NCACTIVATE:
+                    if (m.WParam == (IntPtr)Win32.FALSE)
+                    {
+                        m.Result = (IntPtr)Win32.TRUE;
+                    }
+                    break;                    
                 case (int)WindowMessages.WM_NCPAINT:
                 case (int)WindowMessages.WM_NCCALCSIZE:
                     break;
