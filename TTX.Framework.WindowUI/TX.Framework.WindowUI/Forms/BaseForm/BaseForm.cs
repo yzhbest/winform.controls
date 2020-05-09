@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.ComponentModel;
 using TX.Framework.WindowUI.Controls;
+using System.Drawing.Drawing2D;
 
 namespace TX.Framework.WindowUI.Forms
 {
@@ -96,12 +97,12 @@ namespace TX.Framework.WindowUI.Forms
             this.UpdateStyles();
             base.FormBorderStyle = FormBorderStyle.None;
             base.Padding = this.DefaultPadding;
-            this.StartPosition = FormStartPosition.CenterParent;
+            this.StartPosition = FormStartPosition.CenterScreen;
             base.Size = new Size(500, 350);
             this.ResetRegion();
             ////任务栏的logo
             base.Icon = Properties.Resources.logo;
-            this._CapitionLogo = Properties.Resources.naruto;
+            //this._CapitionLogo = Properties.Resources.sxj;
             this.InitializeControlBoxInfo();
             TXToolStripRenderer render = new TXToolStripRenderer();
             //this.SetToolStripRenderer(render);
@@ -391,11 +392,27 @@ namespace TX.Framework.WindowUI.Forms
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
+            //Graphics g = e.Graphics;
+            //GDIHelper.InitializeGraphics(g);
+            //this.DrawFormBackGround(g);
+            //this.DrawCaption(g);
+            //this.DrawFormBorder(g);
+
+          
+            BufferedGraphicsContext currentContext = BufferedGraphicsManager.Current;
+            BufferedGraphics myBuffer = currentContext.Allocate(e.Graphics, e.ClipRectangle);
+            Graphics g = myBuffer.Graphics;
             GDIHelper.InitializeGraphics(g);
             this.DrawFormBackGround(g);
             this.DrawCaption(g);
             this.DrawFormBorder(g);
+
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+           // g.Clear(this.BackColor);
+            myBuffer.Render(e.Graphics);
+            g.Dispose();
+            myBuffer.Dispose();//释放资源
         }
 
         protected override void WndProc(ref Message m)
@@ -405,13 +422,12 @@ namespace TX.Framework.WindowUI.Forms
                 case (int)WindowMessages.WM_NCHITTEST:
                     WmNcHitTest(ref m);
                     break;
-                // yzh input 2019-10-30 border display bug
                 case (int)WindowMessages.WM_NCACTIVATE:
                     if (m.WParam == (IntPtr)Win32.FALSE)
                     {
                         m.Result = (IntPtr)Win32.TRUE;
                     }
-                    break;                    
+                    break;
                 case (int)WindowMessages.WM_NCPAINT:
                 case (int)WindowMessages.WM_NCCALCSIZE:
                     break;
@@ -471,7 +487,7 @@ namespace TX.Framework.WindowUI.Forms
             this.ClientSize = new System.Drawing.Size(292, 273);
             this.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Name = "BaseForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.ResumeLayout(false);
 
         }
